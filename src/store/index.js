@@ -1,8 +1,11 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import TodosReducer, { TODO_KEY } from "./todos.slice";
+import logger from "redux-logger";
+
 export default configureStore({
   reducer: {
     [TODO_KEY]: TodosReducer
   },
-  devTools: true
+  middleware: [...getDefaultMiddleware(), logger],
+  devTools: true,
 })
