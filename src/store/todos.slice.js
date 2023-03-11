@@ -6,8 +6,19 @@ const { reducer: TodosReducer, actions } = createSlice({
   name: TODO_KEY,
   initialState: [],
   reducers: {
-    addTodo: (state, action) => {
-      state.push(action.payload);
+    // addTodo: (state, action) => {
+    //   state.push(action.payload);
+    // }
+    addTodo: {
+      reducer: (state, action) => {
+        console.log('====================================');
+        console.log(action);
+        console.log('====================================');
+        state.push(action.payload)
+      },
+      prepare: todo => {
+        return { payload: { ...todo, id: Math.random() * 1000 } }
+      }
     }
   }
 });
