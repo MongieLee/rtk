@@ -1,7 +1,17 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createEntityAdapter, createSelector } from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const TODO_KEY = "todos";
+
+const todoAdapter = createEntityAdapter({ selectId: state => state.fid });
+console.log(todoAdapter.getInitialState());
+
+const { selectAll } = todoAdapter.getSelectors();
+export const selectTodosList = createSelector(
+  state => state[TODO_KEY],
+  selectAll
+)
+
 
 export const loadTodos = createAsyncThunk("todos/loadTodos", (payload) => {
   console.log(payload);
@@ -11,33 +21,20 @@ export const loadTodos = createAsyncThunk("todos/loadTodos", (payload) => {
 
 const { reducer: TodosReducer, actions } = createSlice({
   name: TODO_KEY,
-  initialState: [],
+  initialState: todoAdapter.getInitialState(),
   reducers: {
     // addTodo: (state, action) => {
     //   state.push(action.payload);
     // }
     addTodo: {
-      reducer: (state, action) => {
-        console.log('====================================');
-        console.log(action);
-        console.log('====================================');
-        state.push(action.payload)
-      },
-      prepare: todo => {
-        return { payload: { ...todo, id: Math.random() * 1000 } }
-      }
+      reducer: (state, action) => todoAdapter.addOne(state, action.payload),
+      prepare: todo => ({ payload: { ...todo, fid: Math.random() * 1000 } })
     },
-    setTodos: (state, action) => {
-      console.log(action.payload);
-      action.payload.forEach(i => state.push(i))
-    }
+    setTodos: (state, action) => todoAdapter.addMany(state, action.payload)
+
   },
   extraReducers: {
-    [loadTodos.fulfilled]: (state, action) => {
-      console.log(action);
-      console.log('fulfilled');
-      action.payload.forEach(i => state.push(i))
-    }
+    [loadTodos.fulfilled]: (state, action) => todoAdapter.addMany(state, action.payload)
   }
 });
 
